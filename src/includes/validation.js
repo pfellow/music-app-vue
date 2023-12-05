@@ -1,4 +1,10 @@
-import { Form as VeeForm, Field as VeeField, defineRule, ErrorMessage } from 'vee-validate'
+import {
+  Form as VeeForm,
+  Field as VeeField,
+  defineRule,
+  ErrorMessage,
+  configure
+} from 'vee-validate'
 import {
   required,
   min,
@@ -18,13 +24,41 @@ export default {
     app.component('ErrorMessage', ErrorMessage)
 
     defineRule('required', required)
+    defineRule('tos', required)
     defineRule('min', min)
     defineRule('max', max)
     defineRule('alphaSpaces', alphaSpaces)
     defineRule('email', email)
     defineRule('minValue', minValue)
     defineRule('maxValue', maxValue)
-    defineRule('confirmed', confirmed)
+    defineRule('passwordsMismatch', confirmed)
     defineRule('excluded', excluded)
+    defineRule('countryExcluded', excluded)
+
+    configure({
+      generateMessage: (ctx) => {
+        const messages = {
+          required: `The field ${ctx.field} is required.`,
+          min: `The field ${ctx.field} is too short.`,
+          max: `The field ${ctx.field} is too long.`,
+          alphaSpaces: `The field ${ctx.field} may only contain letters and spaces.`,
+          email: `The field ${ctx.field} must be a valid email address.`,
+          minValue: `The field ${ctx.field} must be at least 18.`,
+          maxValue: `The field ${ctx.field} must be no more 30.`,
+          passwordsMismatch: `The password confirmation does not match the password.`,
+          excluded: `This value is not allowed.`,
+          countryExcluded: `Due to restrictions, we do not accept users from this location.`,
+          tos: 'You must accept the Terms of Service.'
+        }
+        const message = messages[ctx.rule.name]
+          ? messages[ctx.rule.name]
+          : `The field ${ctx.field} is invalid.`
+        return message
+      },
+      validateOnBlur: true,
+      validateOnChange: true,
+      validateOnInput: false,
+      validateOnModelUpdate: true
+    })
   }
 }
